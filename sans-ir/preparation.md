@@ -1,250 +1,232 @@
 # Preparation
-<!-- SANS Incident Response – Preparation Phase -->
+<!-- SANS Incident Response – Expert-Level Preparation Phase -->
 
 ---
 
 ## 1. Scope & Purpose
 
-The **Preparation** phase establishes the organizational, technical, and forensic readiness required to respond to security incidents in a timely, controlled, and defensible manner.
+The Preparation phase establishes **forensic, technical, and operational readiness** required to investigate security incidents **without delay, evidence loss, or legal exposure**.
 
-This phase ensures that:
-- Security incidents can be detected, investigated, and contained rapidly
-- Evidence can be preserved in a forensically sound way
-- Roles, responsibilities, and escalation paths are predefined
-- Legal, regulatory, and business constraints are understood before an incident occurs
+At an expert level, preparation is not about owning tools — it is about ensuring:
+- The *right evidence exists*
+- Investigators can access it immediately
+- Actions are legally defensible
+- Decisions can be made under pressure
 
-Preparation is the **most critical phase** of the incident response lifecycle. Weak preparation almost always results in delayed response, evidence loss, and increased business impact.
-
----
-
-## 2. Process Alignment
-
-### SANS Incident Response Phases
-- Preparation ✅
-- Identification
-- Containment
-- Eradication
-- Recovery
-- Lessons Learned
+Most failed DFIR engagements fail **before the incident begins**.
 
 ---
 
-### Digital Forensics Phases (Applicable)
-- Identification
-- Preservation
-- Collection
-- Reporting
+## 2. What “Prepared” Means (Expert Definition)
 
-The Preparation phase focuses on **forensic readiness**, ensuring evidence sources, tools, and procedures are available when needed.
+An organization is considered **DFIR-prepared** when:
 
----
+- Logs are enabled, centralized, and retained
+- Memory acquisition is possible on demand
+- Cloud and identity audit logs are accessible
+- IR authority and escalation paths are pre-approved
+- Tooling is tested, documented, and available
+- Evidence handling is legally defensible
 
-## 3. Preparation Activities
-
-### Organizational Readiness
-- Maintain and review the Incident Response Plan (IRP)
-- Define incident severity levels and classification criteria
-- Establish internal and external escalation workflows
-- Define decision authority for containment and shutdown actions
-- Maintain updated contact lists (IR, SOC, IT, Legal, HR, PR, Vendors)
-
-### Technical Readiness
-- Centralize logging across endpoint, network, cloud, identity, and SaaS
-- Ensure log retention meets investigative and regulatory requirements
-- Enable time synchronization (NTP) across all systems
-- Pre-stage secure evidence storage locations
-- Validate EDR, SIEM, and cloud audit logging coverage
-
-### Forensic Readiness
-- Define evidence acquisition standards and SOPs
-- Pre-test collection scripts and tooling
-- Establish chain-of-custody procedures
-- Validate investigator access and permissions
-- Ensure capability to acquire volatile data (memory, containers, cloud state)
+Preparation is a **business capability**, not a SOC checklist.
 
 ---
 
-## 4. Evidence Sources (Preparation Phase)
+## 3. Minimum vs Mature Preparation (CRITICAL)
 
-Preparation ensures availability and integrity of the following evidence sources:
+### 3.1 Minimum Required (Non-Negotiable)
 
-- Endpoint telemetry and audit logs
-- Memory acquisition capability
-- Network logs (firewall, proxy, VPN, DNS)
-- Identity and authentication logs
-- Cloud audit and control plane logs
-- SaaS application and API logs
-- Email and collaboration platform logs
-- Backup, snapshot, and recovery metadata
-- Threat intelligence feeds and IOC repositories
+If these are missing, investigations will fail:
 
----
-
-## 5. Tooling
-
-> The tools referenced below represent commonly used DFIR capabilities for preparation and readiness.  
-> This list is **not exhaustive** and is **not limited** to the tools mentioned here.  
-> Equivalent or alternative tools may be used based on organizational standards, environment, legal constraints, and investigator preference.
+- Endpoint security logs (Windows / Linux)
+- Centralized log storage (SIEM or equivalent)
+- Cloud audit logs enabled
+- Identity authentication logs
+- Ability to isolate hosts and accounts
+- One validated endpoint triage tool
+- One memory acquisition method
+- Incident Response Plan approved by leadership
 
 ---
 
-### Open-Source Tools
+### 3.2 Mature SOC / DFIR Capability
 
-#### Readiness, Validation & Simulation
-- **Atomic Red Team** – https://github.com/redcanaryco/atomic-red-team  
-  Adversary technique simulations for detection and response validation.
-- **MITRE CALDERA** – https://github.com/mitre/caldera  
-  Automated adversary emulation for IR readiness testing.
+These enable deep investigations and faster containment:
 
----
-
-#### Endpoint Visibility & Live Response
-- **Velociraptor** – https://github.com/Velocidex/velociraptor  
-  Endpoint DFIR at scale using VQL.
-- **GRR Rapid Response** – https://github.com/google/grr  
-  Remote live forensics and response.
-- **osquery** – https://github.com/osquery/osquery  
-  Endpoint state visibility using SQL-based queries.
-- **KAPE** – https://www.kroll.com/en/services/cyber-risk/incident-response-litigation-support/kape  
-  Rapid triage and artifact collection.
+- Endpoint telemetry (EDR/XDR)
+- Network visibility (Zeek, Suricata, PCAP)
+- Cloud workload telemetry
+- SaaS audit logs
+- Threat intelligence enrichment
+- Timeline and correlation tooling
+- Automated triage and containment workflows
 
 ---
 
-#### Memory & Volatile Data
-- **WinPMEM** – https://github.com/Velocidex/WinPmem  
-  Windows physical memory acquisition.
-- **LiME** – https://github.com/504ensicsLabs/LiME  
-  Linux memory acquisition.
-- **AVML** – https://github.com/microsoft/avml  
-  Linux and cloud memory acquisition.
+## 4. Evidence & Log Readiness (PRIORITIZED)
+
+### 4.1 Tier 1 – Always Collect First
+
+These logs answer **who, what, when**:
+
+#### Windows
+- Security.evtx  
+  `C:\Windows\System32\winevt\Logs\Security.evtx`
+- Sysmon (if deployed)  
+  `Microsoft-Windows-Sysmon/Operational.evtx`
+- PowerShell  
+  `Microsoft-Windows-PowerShell/Operational.evtx`
+
+#### Linux
+- `/var/log/auth.log` or `/var/log/secure`
+- `/var/log/audit/audit.log`
+
+#### Identity
+- Entra ID / AD Sign-In Logs
+- Okta System Logs
+- VPN authentication logs
 
 ---
 
-#### Network & Detection Readiness
-- **Zeek** – https://zeek.org/  
-  Network protocol analysis and monitoring.
-- **Suricata** – https://suricata.io/  
-  Network threat detection engine.
-- **Sigma** – https://github.com/SigmaHQ/sigma  
-  Generic SIEM detection rule format.
-- **YARA** – https://virustotal.github.io/yara/  
-  Pattern-based malware and artifact detection.
+### 4.2 Tier 2 – Scope & Impact Analysis
+
+These answer **how far and how bad**:
+
+#### Windows Artifacts
+- Prefetch – `C:\Windows\Prefetch\`
+- Amcache – `Amcache.hve`
+- Shimcache – SYSTEM hive
+- SRUM – `SRUDB.dat`
+- LNK files
+
+#### Network
+- Firewall logs
+- DNS logs
+- Proxy logs
+- VPN logs
 
 ---
 
-#### Timeline & Investigation Support
-- **Plaso / log2timeline** – https://github.com/log2timeline/plaso  
-  Timeline generation across multiple data sources.
-- **Timesketch** – https://github.com/google/timesketch  
-  Collaborative forensic timeline analysis.
+### 4.3 Tier 3 – Advanced / Deep Forensics
+
+Used for APT, insider, or legal cases:
+
+- Memory images
+- Disk images
+- PCAPs
+- Cloud snapshots
+- Email message traces
+- SaaS API audit logs
 
 ---
 
-### Commercial / Enterprise Tools
+## 5. Attack-Type → Evidence Mapping (EXPERT THINKING)
 
-#### EDR / XDR
-- **CrowdStrike Falcon** – https://www.crowdstrike.com/
-- **Microsoft Defender for Endpoint** – https://learn.microsoft.com/defender-endpoint/
-- **SentinelOne Singularity** – https://www.sentinelone.com/
+| Incident Type | Primary Evidence |
+|---------------|------------------|
+| Ransomware | EDR logs, Prefetch, SRUM, memory |
+| Identity Abuse | Sign-in logs, token logs, audit logs |
+| Cloud Breach | CloudTrail, IAM logs, API calls |
+| Insider Threat | File access logs, email, DLP |
+| Malware | Memory, execution artifacts, EDR |
+| APT | Timeline + memory + network |
 
----
-
-#### SIEM / SOAR
-- **Splunk Enterprise Security** – https://www.splunk.com/
-- **Elastic Security** – https://www.elastic.co/security
-- **IBM QRadar** – https://www.ibm.com/security/security-intelligence/qradar
-
----
-
-#### Case Management & Orchestration
-- **TheHive** – https://thehive-project.org/
-- **ServiceNow Security Operations** – https://www.servicenow.com/products/security-operations.html
+This mapping prevents **random evidence collection**.
 
 ---
 
-## 6. Categorization of Tools
+## 6. Tooling – Capability-Based (Not Brand-Based)
 
-Preparation-phase tools support:
-- Incident readiness testing
-- Detection and logging validation
-- Evidence acquisition readiness
-- Memory and volatile data capture
-- Centralized telemetry
-- Case tracking and documentation
+> Tools represent **capabilities**.  
+> Use equivalents if approved.
 
 ---
 
-## 7. Blogs, Research & References
+### 6.1 Endpoint & Live Response (MANDATORY)
 
-### DFIR & IR Blogs
-- https://thedfirreport.com/
-- https://thisweekin4n6.com/
-- https://dfirdiva.com/
-- https://www.sans.org/blog/?focus-area=digital-forensics
-- https://www.microsoft.com/security/blog/
+- Velociraptor – https://github.com/Velocidex/velociraptor
+- GRR – https://github.com/google/grr
+- KAPE – https://www.kroll.com/kape
+- DFIR-ORC – https://dfir-orc.github.io/
+- FastIR – https://github.com/SekoiaLab/Fastir_Collector
 
----
-
-### Community & Knowledge Bases
-- https://aboutdfir.com/
-- https://www.dfir.training/
-- https://www.forensicfocus.com/
-- https://github.com/ForensicArtifacts/artifacts
+Purpose: Immediate triage without waiting for disk images.
 
 ---
 
-### Standards & Guidelines
-- NIST SP 800-61 – https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final
-- ISO/IEC 27035 – https://www.iso.org/standard/44379.html
-- ISO/IEC 27037 – https://www.iso.org/standard/44381.html
+### 6.2 Memory Acquisition (EXPERT-LEVEL)
+
+- WinPMEM – https://github.com/Velocidex/WinPmem
+- LiME – https://github.com/504ensicsLabs/LiME
+- AVML – https://github.com/microsoft/avml
+
+Memory is **often the only place** credentials and malware exist.
 
 ---
 
-## 8. Practical DFIR Usage
+### 6.3 Timeline & Artifact Analysis
 
-The Preparation phase enables teams to:
-- Detect incidents earlier
-- Avoid delays caused by access or tooling gaps
-- Preserve volatile and cloud-native evidence
-- Respond effectively under pressure
-- Meet regulatory and legal obligations
-
-### Typical Scenarios
-- Ransomware readiness assessments
-- Cloud IR preparedness reviews
-- Identity compromise readiness
-- SOC maturity improvement
-- Audit and compliance preparation
+- Plaso – https://github.com/log2timeline/plaso
+- Timesketch – https://github.com/google/timesketch
+- Hayabusa – https://github.com/Yamato-Security/hayabusa
+- Chainsaw – https://github.com/countercept/chainsaw
+- Eric Zimmerman Tools – https://ericzimmerman.github.io/
 
 ---
 
-## 9. Common Mistakes & Pitfalls
+### 6.4 Network Visibility
 
-- Treating preparation as a one-time activity
-- Insufficient log retention
-- No tested memory acquisition capability
-- Unclear escalation authority
-- Missing legal and compliance alignment
-- Lack of readiness during off-hours incidents
+- Zeek – https://zeek.org/
+- Suricata – https://suricata.io/
+- Arkime – https://arkime.com/
+- Wireshark – https://www.wireshark.org/
 
 ---
 
-## 10. Output & Reporting
+## 7. Knowledge Bases (USED BY EXPERTS)
 
-Effective preparation results in:
-- A tested Incident Response Plan
-- Verified logging and telemetry coverage
-- Ready-to-use evidence collection tooling
-- Clear escalation and communication paths
-- Faster and more accurate incident identification
-- Reduced response friction
+### Curated Repositories
+- Awesome Incident Response  
+  https://github.com/meirwah/awesome-incident-response
+- ForensicsTools  
+  https://github.com/mesquidar/ForensicsTools
+- DFIR Artifacts  
+  https://github.com/teamdfir/artifacts
 
 ---
 
-## Notes
+### Research & Case Studies
+- The DFIR Report – https://thedfirreport.com/
+- SANS DFIR Blog – https://www.sans.org/blog/
+- Mandiant Blog – https://www.mandiant.com/resources/blog
+- Unit42 – https://unit42.paloaltonetworks.com/
 
-- Preparation must be reviewed and tested regularly
-- Conduct tabletop and adversary simulation exercises
-- Update tooling as environments evolve
-- Assume incidents will occur outside business hours
-- Preparation gaps are usually exposed during real incidents
+---
+
+## 8. Common Preparation Failures (FIELD EXPERIENCE)
+
+- Logs enabled but not retained
+- No memory capture approval
+- Cloud logs disabled by default
+- Tooling exists but is untested
+- No after-hours access
+- Legal engaged too late
+
+---
+
+## 9. Output of an Expert-Level Preparation Phase
+
+- Immediate evidence availability
+- Faster containment decisions
+- Reduced attacker dwell time
+- Legally defensible investigations
+- Confident executive communication
+
+---
+
+## Final Expert Note
+
+Preparation is not about **having tools**.  
+It is about **removing friction when incidents occur**.
+
+If investigators must ask for access, approval, or tools during an incident — preparation has failed.
