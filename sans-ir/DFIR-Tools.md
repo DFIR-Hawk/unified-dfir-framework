@@ -1,7 +1,7 @@
 # DFIR Tools Repository
 ## Digital Forensics & Incident Response (DFIR)
 
-A **forensic-only** collection of tools aligned with **SANS DFIR**, **SIFT Workstation** and **commercial tools that provide free editions**.
+This repository consolidates trusted DFIR tools for disk, memory, endpoint, network, and incident response investigations, combining open-source projects and free commercial tools commonly referenced in SANS DFIR training and professional practice.
 
 This repository is suitable for:
 - DFIR practitioners
