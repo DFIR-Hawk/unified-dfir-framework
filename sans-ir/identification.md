@@ -1,266 +1,304 @@
 # Identification
-<!-- SANS Incident Response – Identification Phase -->
+<!-- SANS Incident Response – Expert-Level Identification Phase -->
 
 ---
 
 ## 1. Scope & Purpose
 
-The **Identification** phase focuses on detecting, validating, and scoping potential security incidents.  
-Its objective is to determine whether an observed event constitutes a true security incident and to establish the **initial scope, severity, and impact**.
+The **Identification** phase determines whether observed activity represents a **true security incident**, and if so:
 
-This phase ensures that:
-- False positives are reduced quickly
-- True incidents are confirmed with evidence
-- Initial forensic data is preserved
-- Response actions are proportional and informed
-- SOC alerts transition cleanly into DFIR investigations
+- What happened
+- Who or what is affected
+- How severe the incident is
+- Whether containment must begin immediately
 
-Identification is the **decision-making phase** that determines whether containment and eradication actions are required.
+At an expert level, identification is **not alert review** —  
+it is **evidence-based incident confirmation and initial scoping**.
 
----
-
-## 2. Process Alignment
-
-### SANS Incident Response Phases
-- Preparation
-- Identification ✅
-- Containment
-- Eradication
-- Recovery
-- Lessons Learned
+Poor identification leads to:
+- False positives escalating to outages
+- Delayed containment of real attacks
+- Evidence loss due to premature actions
 
 ---
 
-### Digital Forensics Phases (Applicable)
-- Identification
-- Preservation
-- Collection
+## 2. What “Identification” Means at Expert Level
 
-Evidence preservation begins immediately during this phase, even before containment.
+An incident is considered **identified** only when:
 
----
+- Malicious or unauthorized activity is confirmed
+- Evidence supports the conclusion (not assumptions)
+- Initial scope is defined (hosts, users, cloud resources)
+- Severity and business impact are assessed
+- A containment recommendation is documented
 
-## 3. Identification Activities
-
-### Alert Intake & Triage
-- Receive alerts from SIEM, EDR, XDR, SOAR, cloud-native services, or user reports
-- Validate alerts and remove false positives
-- Correlate signals across multiple telemetry sources
-- Assess alert confidence and fidelity
-
-### Incident Confirmation
-- Determine presence of malicious or unauthorized activity
-- Identify affected systems, users, cloud resources, or applications
-- Map observed behavior to known attacker techniques
-- Assign incident category and severity
-
-### Initial Scoping
-- Identify impacted hosts, identities, and workloads
-- Establish an initial timeline (high-level)
-- Identify potential lateral movement or privilege escalation
-- Extract and validate indicators of compromise (IOCs)
-- Preserve volatile and cloud-native evidence
+Identification **ends when a decision is made**, not when an alert fires.
 
 ---
 
-## 4. Evidence Sources (Identification Phase)
+## 3. Minimum vs Mature Identification Capability
 
-Common evidence reviewed during identification includes:
+### 3.1 Minimum Required (Non-Negotiable)
 
-- Endpoint telemetry and EDR alerts
-- SIEM correlations and raw logs
-- Network logs (firewall, proxy, VPN, DNS)
-- Authentication and identity logs
-- Cloud audit and activity logs
-- Email and collaboration platform logs
-- Memory artifacts (if active compromise suspected)
-- Threat intelligence feeds and reputation data
-- User-reported artifacts (emails, files, URLs)
+If these are missing, identification will be unreliable:
 
-Evidence collection should be **minimally invasive but forensically sound**.
+- Centralized log visibility (SIEM or equivalent)
+- Endpoint security telemetry
+- Identity authentication logs
+- Ability to query endpoints remotely
+- IOC enrichment capability
+- Basic timeline construction
 
 ---
 
-## 5. Tooling
+### 3.2 Mature SOC / DFIR Capability
 
-> The tools referenced below represent commonly used DFIR capabilities for incident identification.  
-> This list is **not exhaustive** and is **not limited** to the tools mentioned here.  
-> Equivalent or alternative tools may be used based on organizational standards, environment, and investigator preference.
+These enable fast, confident identification:
 
----
-
-### Open-Source Tools
-
-#### Detection & Alert Analysis
-- **Sigma** – https://github.com/SigmaHQ/sigma  
-  Generic detection rules across SIEM platforms.
-- **Zeek** – https://zeek.org/  
-  Network traffic and protocol analysis.
-- **Suricata** – https://suricata.io/  
-  Network-based threat detection.
-- **YARA** – https://virustotal.github.io/yara/  
-  Identification of malicious files and artifacts.
+- Cross-source correlation (endpoint + identity + cloud)
+- Memory capture for active compromise
+- Threat intelligence platforms
+- Automated triage workflows
+- Detection engineering feedback loops
+- Cloud and SaaS forensic visibility
 
 ---
 
-#### Endpoint & Live Triage
-- **Velociraptor** – https://github.com/Velocidex/velociraptor  
-  Live endpoint queries and artifact collection.
-- **GRR Rapid Response** – https://github.com/google/grr  
-  Remote live forensics and endpoint triage.
-- **osquery** – https://github.com/osquery/osquery  
-  Endpoint state inspection using SQL queries.
-- **KAPE** – https://www.kroll.com/en/services/cyber-risk/incident-response-litigation-support/kape  
-  Rapid triage and artifact acquisition.
+## 4. Identification Workflow (REAL WORLD)
+
+### Step 1: Alert Intake & Context
+- Receive alert from SIEM, EDR, cloud, SaaS, or user report
+- Identify detection source and confidence
+- Determine if alert is behavioral, signature-based, or anomaly-based
+
+### Step 2: Evidence Validation
+- Validate alert against raw logs
+- Check for false positives
+- Confirm malicious indicators (process, user, API, network)
+
+### Step 3: Initial Scoping
+- Identify affected hosts, identities, workloads
+- Determine time window of activity
+- Look for lateral movement or persistence
+
+### Step 4: Severity & Impact Assessment
+- Data exposure?
+- Privilege escalation?
+- Business-critical systems involved?
+- Regulatory or legal implications?
+
+### Step 5: Decision Point
+- Escalate to containment
+- Continue monitoring
+- Close as false positive
+
+Every step must be **evidence-driven**.
 
 ---
 
-#### Identity & Authentication Analysis
-- **Azure Entra ID Sign-In Logs** – https://learn.microsoft.com/entra/identity/monitoring-health/  
-- **Okta System Logs** – https://developer.okta.com/docs/reference/api/system-log/  
-- **Auth0 Logs** – https://auth0.com/docs/logs  
+## 5. Evidence Sources & Log Paths (PRIORITIZED)
 
-Used to identify token abuse, OAuth misuse, impossible travel, and MFA fatigue attacks.
+### 5.1 Tier 1 – Incident Confirmation
 
----
+These answer **did something malicious occur**:
 
-#### Email & Collaboration Investigation
-- **Microsoft 365 Defender Explorer** – https://learn.microsoft.com/microsoft-365/security/  
-- **Google Workspace Audit Logs** – https://support.google.com/a/answer/4579579  
-- **Unfurl** – https://github.com/obsidianforensics/unfurl  
+#### Windows
+- Security.evtx  
+  `C:\Windows\System32\winevt\Logs\Security.evtx`
+- Sysmon  
+  `Microsoft-Windows-Sysmon/Operational.evtx`
+- PowerShell  
+  `Microsoft-Windows-PowerShell/Operational.evtx`
 
-Used for phishing, BEC, and malicious attachment analysis.
+#### Linux
+- Authentication  
+  `/var/log/auth.log` or `/var/log/secure`
+- Auditd  
+  `/var/log/audit/audit.log`
 
----
-
-#### Threat Intelligence & Enrichment
-- **MISP** – https://github.com/MISP/MISP  
-- **IntelMQ** – https://github.com/certtools/intelmq  
-- **OpenCTI** – https://www.opencti.io/  
-- **VirusTotal** – https://www.virustotal.com/  
-- **AbuseIPDB** – https://www.abuseipdb.com/  
-- **URLhaus** – https://urlhaus.abuse.ch/  
-
-Used for IOC validation, enrichment, and campaign context.
+#### Identity
+- Entra ID Sign-In Logs
+- Okta System Logs
+- VPN authentication logs
 
 ---
 
-#### Cloud & Container Identification
-- **AWS GuardDuty** – https://aws.amazon.com/guardduty/  
-- **AWS Detective** – https://aws.amazon.com/detective/  
-- **Azure Defender for Cloud** – https://learn.microsoft.com/azure/defender-for-cloud/  
-- **GCP Security Command Center** – https://cloud.google.com/security-command-center  
-- **Falco** – https://falco.org/  
-- **Kubernetes Audit Logs** – https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/
+### 5.2 Tier 2 – Scope Expansion
+
+These answer **how far did it spread**:
+
+#### Endpoint Artifacts
+- Prefetch – `C:\Windows\Prefetch\`
+- Amcache – `Amcache.hve`
+- Shimcache – SYSTEM hive
+- SRUM – `SRUDB.dat`
+- LNK files
+
+#### Network
+- Firewall logs
+- DNS logs
+- Proxy logs
+- VPN logs
 
 ---
 
-#### Rapid Triage Utilities
-- **CyberChef** – https://gchq.github.io/CyberChef/  
-- **FLARE FLOSS** – https://github.com/mandiant/flare-floss  
-- **Strings / Bstrings** – https://github.com/EricZimmerman/bstrings  
+### 5.3 Tier 3 – Advanced Confirmation
+
+Used for stealthy or high-impact attacks:
+
+- Memory images
+- Disk snapshots
+- PCAPs
+- Cloud API activity logs
+- Email message traces
+- SaaS audit logs
 
 ---
 
-### Commercial / Enterprise Tools
+## 6. Attack Type → Identification Evidence Mapping
 
-#### EDR / XDR
-- **CrowdStrike Falcon** – https://www.crowdstrike.com/
-- **Microsoft Defender for Endpoint** – https://learn.microsoft.com/defender-endpoint/
-- **SentinelOne Singularity** – https://www.sentinelone.com/
+| Incident Type | Primary Evidence |
+|--------------|------------------|
+| Ransomware | EDR telemetry, Prefetch, SRUM, memory |
+| Identity Abuse | Sign-in logs, token activity, audit logs |
+| Cloud Breach | CloudTrail, IAM, API calls |
+| Insider Threat | File access logs, email, DLP |
+| Malware | Memory, execution artifacts |
+| APT | Timeline + identity + network |
 
----
-
-#### SIEM / SOAR
-- **Splunk Enterprise Security** – https://www.splunk.com/
-- **Elastic Security** – https://www.elastic.co/security
-- **IBM QRadar** – https://www.ibm.com/security/security-intelligence/qradar
-
----
-
-## 6. Categorization of Tools
-
-Identification-phase tools support:
-- Alert validation and triage
-- Cross-source correlation
-- Endpoint, identity, and cloud scoping
-- IOC extraction and enrichment
-- Threat classification and prioritization
-- Early forensic preservation
+This prevents **random or incomplete investigations**.
 
 ---
 
-## 7. Blogs, Research & References
+## 7. Tooling – Capability-Based (Expert View)
 
-### DFIR & Detection Research
-- https://thedfirreport.com/
-- https://thisweekin4n6.com/
-- https://www.sans.org/blog/?focus-area=digital-forensics
-- https://www.microsoft.com/security/blog/
-- https://securityaffairs.co/wordpress/
+> Tools represent **capabilities**, not brand dependency.  
+> Use approved equivalents where required.
 
 ---
 
-### Threat Intelligence & Frameworks
-- https://attack.mitre.org/
-- https://aboutdfir.com/
-- https://www.dfir.training/
-- https://www.forensicfocus.com/
+### 7.1 Detection & Correlation
+
+- Sigma  
+  https://github.com/SigmaHQ/sigma
+- Splunk Enterprise Security  
+  https://www.splunk.com/
+- Elastic Security  
+  https://www.elastic.co/security
+- IBM QRadar  
+  https://www.ibm.com/security/qradar
+- Graylog  
+  https://www.graylog.org/
+
+Purpose: Validate alerts and correlate signals.
 
 ---
 
-### Standards & Guidance
-- NIST SP 800-61 – https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final
-- ISO/IEC 27035 – https://www.iso.org/standard/44379.html
+### 7.2 Endpoint & Live Triage
+
+- Velociraptor  
+  https://github.com/Velocidex/velociraptor
+- GRR Rapid Response  
+  https://github.com/google/grr
+- KAPE  
+  https://www.kroll.com/kape
+- osquery  
+  https://github.com/osquery/osquery
+- FleetDM  
+  https://github.com/fleetdm/fleet
+- Redline  
+  https://www.fireeye.com/services/freeware/redline.html
+
+Purpose: Rapid scoping without destroying evidence.
 
 ---
 
-## 8. Practical DFIR Usage
+### 7.3 Timeline & Log Analysis
 
-The Identification phase is used to:
-- Confirm true security incidents
-- Reduce false positives and alert fatigue
-- Prioritize response actions
-- Preserve volatile and cloud-native evidence
-- Avoid premature containment actions
+- Plaso / log2timeline  
+  https://github.com/log2timeline/plaso
+- Timesketch  
+  https://github.com/google/timesketch
+- Hayabusa  
+  https://github.com/Yamato-Security/hayabusa
+- Chainsaw  
+  https://github.com/countercept/chainsaw
+- Eric Zimmerman Tools  
+  https://ericzimmerman.github.io/
 
-### Typical Scenarios
-- Ransomware precursors
-- Cloud account compromise
-- Identity abuse and MFA bypass
-- Malware execution alerts
-- Insider threat indicators
-- Web application exploitation
+Purpose: Understand attacker sequence of actions.
 
 ---
 
-## 9. Common Mistakes & Pitfalls
+### 7.4 Threat Intelligence & IOC Enrichment
 
-- Treating alerts as confirmed incidents without validation
+- MISP  
+  https://github.com/MISP/MISP
+- OpenCTI  
+  https://www.opencti.io/
+- IntelMQ  
+  https://github.com/certtools/intelmq
+- VirusTotal  
+  https://www.virustotal.com/
+- AbuseIPDB  
+  https://www.abuseipdb.com/
+- URLhaus  
+  https://urlhaus.abuse.ch/
+
+Purpose: Validate indicators and identify campaigns.
+
+---
+
+### 7.5 Decoding & Rapid Analysis
+
+- CyberChef  
+  https://gchq.github.io/CyberChef/
+- FLOSS  
+  https://github.com/mandiant/flare-floss
+- bstrings  
+  https://github.com/EricZimmerman/bstrings
+- Unfurl  
+  https://github.com/obsidianforensics/unfurl
+- Didier Stevens Tools  
+  https://blog.didierstevens.com/programs/
+
+---
+
+## 8. Common Identification Failures (FIELD EXPERIENCE)
+
+- Treating alerts as incidents without validation
+- Ignoring identity telemetry
+- Over-reliance on one data source
 - Delaying evidence preservation
-- Overreliance on a single telemetry source
-- Ignoring identity and cloud attack paths
-- Escalating incidents without scoping
-- Containing too early and destroying evidence
+- Premature containment actions
+- Poor documentation of decisions
 
 ---
 
-## 10. Output & Reporting
+## 9. Output of an Expert-Level Identification Phase
 
-Effective identification produces:
+Identification is complete when you have:
+
 - Confirmed incident classification
 - Initial scope of compromise
 - Severity and impact assessment
-- Preserved volatile and cloud evidence
-- Initial IOC set
-- Clear handoff to containment phase
-- Executive and technical situation reports
+- Preserved critical evidence
+- Clear containment recommendation
+- Executive-ready summary
+- Technical investigation notes
 
 ---
 
-## Notes
+## Final Expert Note
 
-- Identification decisions must be evidence-driven
-- Preserve evidence before containment
-- Expect scope to expand as investigation progresses
-- Identification quality directly impacts containment success
+Identification is the **most dangerous phase** of incident response.
+
+If done poorly:
+- Containment fails
+- Evidence is lost
+- Business impact increases
+
+If done well:
+- Everything downstream becomes easier.
+
+The goal is **confidence**, not speed.
