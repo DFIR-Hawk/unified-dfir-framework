@@ -1,269 +1,237 @@
 # Containment
-<!-- SANS Incident Response – Containment Phase -->
+<!-- SANS Incident Response – Expert-Level Containment Phase -->
 
 ---
 
 ## 1. Scope & Purpose
 
-The **Containment** phase focuses on **limiting attacker activity, spread, and impact** while preserving evidence required for forensic investigation, legal action, and regulatory response.
+The **Containment** phase focuses on **stopping or limiting attacker activity** while preserving evidence required for forensic investigation, legal action, and recovery.
 
-Containment aims to:
-- Stop or slow attacker operations
-- Prevent lateral movement and privilege escalation
-- Limit data exfiltration and service disruption
-- Preserve volatile and non-volatile evidence
-- Stabilize the environment before eradication
+At an expert level, containment is:
+- A **risk-based decision**, not a reflex action
+- A balance between **business continuity and forensic integrity**
+- A phase where **bad decisions cause permanent damage**
 
-Containment is a **risk-based decision phase** where technical actions directly affect business operations and evidentiary integrity.
-
----
-
-## 2. Process Alignment
-
-### SANS Incident Response Phases
-- Preparation
-- Identification
-- Containment ✅
-- Eradication
-- Recovery
-- Lessons Learned
+Containment does **not** mean eradication.  
+Containment is temporary control to **buy time safely**.
 
 ---
 
-### Digital Forensics Phases (Applicable)
-- Preservation
-- Collection
+## 2. What “Containment” Means at Expert Level
 
-Containment actions may alter system state; evidence preservation must be prioritized before irreversible changes.
+An incident is considered **contained** when:
 
----
+- Attacker activity is stopped or significantly limited
+- Lateral movement and data exfiltration are prevented
+- Compromised identities or systems are controlled
+- Evidence required for investigation is preserved
+- Business risk is reduced to an acceptable level
 
-## 3. Containment Strategy
-
-### Short-Term (Immediate) Containment
-- Network isolation of compromised hosts
-- Account disablement and token revocation
-- Blocking malicious IPs, domains, URLs, and hashes
-- Suspending cloud workloads or API keys
-- Restricting outbound traffic and data flows
-
-### Long-Term (Strategic) Containment
-- Network segmentation and zero-trust enforcement
-- Conditional access and identity hardening
-- EDR policy-based containment
-- Monitoring-based containment (watch, alert, trap)
-- Temporary business process changes
-
-Containment may be **partial or staged** to avoid tipping off attackers prematurely.
+Containment ends **only when the attacker can no longer operate freely**.
 
 ---
 
-## 4. Containment Decision Factors
+## 3. Minimum vs Mature Containment Capability
 
-Containment decisions must consider:
-- Incident severity and scope
-- Attacker objectives and tradecraft
-- Risk of evidence destruction
-- Business criticality of affected systems
-- Legal, regulatory, and insurance requirements
-- Availability of compensating controls
+### 3.1 Minimum Required (Non-Negotiable)
 
-All containment actions should be **documented, approved, and reversible where possible**.
+If these are missing, containment will be dangerous or ineffective:
+
+- Ability to isolate endpoints remotely
+- Ability to disable accounts and revoke sessions
+- Network-level blocking (firewall, proxy, DNS)
+- Cloud resource control (stop, snapshot, restrict)
+- Documentation and approval authority
+- Evidence preservation before destructive actions
 
 ---
 
-## 5. Evidence Sources (Containment Phase)
+### 3.2 Mature SOC / DFIR Capability
 
-Evidence to preserve or collect includes:
+These allow **controlled and stealthy containment**:
 
-- Memory images of compromised systems
-- Disk images or snapshots
+- EDR/XDR isolation with forensic telemetry
+- Conditional access and identity-based containment
+- Network segmentation and zero-trust controls
+- Monitoring-based containment (observe attacker behavior)
+- Automated containment workflows
+- Legal, HR, and executive coordination
+
+---
+
+## 4. Containment Strategy (EXPERT THINKING)
+
+### 4.1 Short-Term (Immediate) Containment
+
+Used when there is **active risk**:
+
+- Isolate compromised endpoints
+- Disable or restrict compromised user accounts
+- Revoke tokens, sessions, and API keys
+- Block known malicious IPs, domains, hashes
+- Restrict outbound traffic to prevent exfiltration
+
+⚠️ These actions may **destroy volatile evidence** if done incorrectly.
+
+---
+
+### 4.2 Long-Term (Strategic) Containment
+
+Used when attacker presence is confirmed but controlled:
+
+- Network segmentation
+- Conditional access enforcement
+- EDR-based process blocking
+- Temporary firewall and proxy rules
+- Monitoring attacker behavior (watch, alert, log)
+
+This approach is often used in **APT and insider threat cases**.
+
+---
+
+## 5. Evidence Preservation Before Containment (CRITICAL)
+
+Before executing irreversible containment actions, preserve:
+
+- Memory images (if active compromise)
+- Disk snapshots or forensic images
 - EDR telemetry and response logs
-- Network packet captures
+- Cloud resource states and audit logs
+- Network captures (if available)
 - Identity and authentication logs
-- Cloud audit logs and runtime state
-- Firewall, proxy, and DNS logs
-- Backup metadata and snapshot history
 
-Evidence should be acquired **before containment actions that alter state**.
+If evidence is destroyed during containment, **root cause analysis may fail**.
 
 ---
 
-## 6. Tooling
+## 6. Containment Decision Matrix (EXPERT TOOL)
 
-> The tools referenced below represent commonly used DFIR containment capabilities.  
-> This list is **not exhaustive** and **not limited** to the tools mentioned.  
-> Equivalent tools may be used depending on environment, policy, and investigator judgment.
+| Scenario | Containment Priority | Notes |
+|--------|----------------------|-------|
+| Active ransomware | Immediate isolation | Evidence second to impact |
+| Data exfiltration | Block outbound traffic | Preserve logs |
+| Identity compromise | Revoke tokens first | Avoid tipping attacker |
+| Cloud abuse | Restrict IAM | Snapshot resources |
+| Insider threat | Silent monitoring | Legal coordination |
+| APT | Strategic containment | Observe tactics |
 
----
-
-### Open-Source Tools
-
-#### Endpoint Containment & Live Response
-- **Velociraptor** – https://github.com/Velocidex/velociraptor  
-- **GRR Rapid Response** – https://github.com/google/grr  
-- **osquery** – https://github.com/osquery/osquery  
-- **KAPE** – https://www.kroll.com/en/services/cyber-risk/incident-response-litigation-support/kape  
-- **DFIR-ORC** – https://dfir-orc.github.io/  
+This matrix prevents **panic-driven decisions**.
 
 ---
 
-#### Network Containment & Monitoring
-- **Zeek** – https://zeek.org/  
-- **Suricata** – https://suricata.io/  
-- **Snort** – https://www.snort.org/  
-- **tcpdump** – https://www.tcpdump.org/  
-- **Wireshark** – https://www.wireshark.org/  
+## 7. Attack Type → Containment Mapping
+
+| Incident Type | Primary Containment Actions |
+|--------------|-----------------------------|
+| Ransomware | Endpoint isolation, process kill |
+| Identity Abuse | Token revocation, MFA enforcement |
+| Cloud Breach | IAM restriction, workload suspension |
+| Insider Threat | Access restriction, monitoring |
+| Malware | Network isolation, C2 blocking |
+| APT | Segmentation, long-term monitoring |
 
 ---
 
-#### Identity & Access Containment
-- **Azure Conditional Access** – https://learn.microsoft.com/entra/identity/conditional-access/  
-- **Microsoft Entra ID Sign-In Logs** – https://learn.microsoft.com/entra/identity/monitoring-health/  
-- **AWS IAM / SCPs** – https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html  
-- **Okta Policies & System Logs** – https://help.okta.com/  
-- **Google Workspace Admin Controls** – https://support.google.com/a/
+## 8. Tooling – Capability-Based (Expert View)
+
+> Tools represent **capabilities**, not brand dependency.  
+> Use approved equivalents where required.
 
 ---
 
-#### Cloud & SaaS Containment
-- **AWS GuardDuty** – https://aws.amazon.com/guardduty/  
-- **AWS Detective** – https://aws.amazon.com/detective/  
-- **Azure Defender for Cloud** – https://learn.microsoft.com/azure/defender-for-cloud/  
-- **GCP Security Command Center** – https://cloud.google.com/security-command-center  
-- **CloudTrail / Azure Activity Logs / GCP Audit Logs**
+### 8.1 Endpoint Containment & Response
+
+- Velociraptor  
+  https://github.com/Velocidex/velociraptor
+- GRR Rapid Response  
+  https://github.com/google/grr
+- CrowdStrike Falcon (Host Isolation)  
+  https://www.crowdstrike.com/
+- Microsoft Defender for Endpoint  
+  https://learn.microsoft.com/defender-endpoint/
+- SentinelOne Singularity  
+  https://www.sentinelone.com/
+
+Purpose: Stop endpoint-based attacker activity.
 
 ---
 
-#### Container & Runtime Containment
-- **Falco** – https://falco.org/  
-- **Kubernetes Audit Logs** – https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/  
-- **Sysdig Inspect (Community)** – https://github.com/draios/sysdig  
-- **Docker Explorer** – https://github.com/google/docker-explorer  
+### 8.2 Identity & Access Containment
+
+- Entra ID Conditional Access  
+  https://learn.microsoft.com/entra/identity/conditional-access/
+- Okta Policies  
+  https://help.okta.com/
+- AWS IAM & SCPs  
+  https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+- Azure RBAC  
+  https://learn.microsoft.com/azure/role-based-access-control/
+
+Purpose: Cut attacker access without touching endpoints.
 
 ---
 
-#### IOC Validation & Blocking
-- **MISP** – https://github.com/MISP/MISP  
-- **OpenCTI** – https://www.opencti.io/  
-- **VirusTotal** – https://www.virustotal.com/  
-- **AbuseIPDB** – https://www.abuseipdb.com/  
-- **URLhaus** – https://urlhaus.abuse.ch/  
+### 8.3 Network & Perimeter Containment
+
+- Palo Alto Networks Firewalls  
+  https://www.paloaltonetworks.com/
+- Fortinet FortiGate  
+  https://www.fortinet.com/products/next-generation-firewall
+- Cisco Secure Firewall  
+  https://www.cisco.com/
+- Zscaler  
+  https://www.zscaler.com/
+- Cloudflare Gateway  
+  https://www.cloudflare.com/
+
+Purpose: Prevent lateral movement and exfiltration.
 
 ---
 
-### Commercial / Enterprise Tools
+### 8.4 Cloud & SaaS Containment
 
-#### EDR / XDR
-- **CrowdStrike Falcon**
-- **Microsoft Defender for Endpoint**
-- **SentinelOne Singularity**
-- **Palo Alto Cortex XDR**
-- **Sophos Intercept X**
+- AWS GuardDuty / Detective  
+  https://aws.amazon.com/
+- Azure Defender for Cloud  
+  https://learn.microsoft.com/azure/defender-for-cloud/
+- GCP Security Command Center  
+  https://cloud.google.com/security-command-center
+- Microsoft 365 Defender  
+  https://learn.microsoft.com/microsoft-365/security/
 
----
-
-#### Network & Perimeter Security
-- **Palo Alto Networks Firewalls**
-- **Fortinet FortiGate**
-- **Cisco Secure Firewall**
-- **Zscaler Internet Access**
-- **Cloudflare Gateway / WAF**
+Purpose: Control cloud-native attack paths.
 
 ---
 
-#### Email & Collaboration Containment
-- **Microsoft Defender for Office 365**
-- **Proofpoint**
-- **Mimecast**
-- **Google Workspace Security Center**
+## 9. Common Containment Failures (FIELD EXPERIENCE)
+
+- Isolating systems before memory capture
+- Disabling accounts without preserving logs
+- Over-blocking and breaking business operations
+- Tipping attackers prematurely
+- Poor communication with leadership
+- Treating containment as eradication
 
 ---
 
-## 7. Categorization of Tools
+## 10. Output of an Expert-Level Containment Phase
 
-Containment tooling supports:
-- Host isolation and response
-- Identity and access restriction
-- Network segmentation and blocking
-- Cloud workload suspension
-- Monitoring attacker behavior
-- Evidence preservation
-- Business continuity controls
+Containment is successful when:
 
----
-
-## 8. Blogs, Research & References
-
-### DFIR & Incident Response
-- https://thedfirreport.com/
-- https://thisweekin4n6.com/
-- https://www.sans.org/blog/?focus-area=digital-forensics
-- https://www.mandiant.com/resources/blog
-- https://www.crowdstrike.com/blog/
-- https://www.microsoft.com/security/blog/
+- Attacker activity is halted or controlled
+- Evidence is preserved
+- Business risk is stabilized
+- Actions are documented and approved
+- Environment is ready for eradication
+- Stakeholders are informed clearly
 
 ---
 
-### Incident Handling & Playbooks
-- https://www.cisa.gov/incident-response-playbooks
-- https://www.nist.gov/cyberframework
-- https://www.enisa.europa.eu/topics/incident-response
+## Final Expert Note
 
----
+Containment is the **most dangerous phase** of incident response.
 
-### Cloud & Identity Research
-- https://unit42.paloaltonetworks.com/
-- https://securitylabs.verizon.com/
-- https://cloud.google.com/blog/topics/security
+Move too slowly — attackers continue.  
+Move too fast — evidence is destroyed.
 
----
-
-## 9. Practical DFIR Usage
-
-Containment is used to:
-- Halt attacker activity
-- Reduce blast radius
-- Preserve evidence for root cause analysis
-- Stabilize business operations
-- Enable safe eradication
-
-### Typical Scenarios
-- Active ransomware encryption
-- Ongoing data exfiltration
-- Identity compromise and lateral movement
-- Cloud workload abuse
-- Insider threat escalation
-
----
-
-## 10. Common Mistakes & Pitfalls
-
-- Containing too aggressively and destroying evidence
-- Delaying containment due to fear of disruption
-- Ignoring identity and cloud attack paths
-- Failing to monitor attacker reaction
-- Assuming containment equals remediation
-- Poor documentation of actions taken
-
----
-
-## 11. Output & Reporting
-
-Effective containment produces:
-- Controlled and reduced incident scope
-- Preserved forensic evidence
-- Documented containment actions
-- Business impact assessment
-- Risk-informed eradication plan
-- Clear executive and technical updates
-
----
-
-## Notes
-
-- Preserve evidence before irreversible containment actions
-- Document approvals and decisions
-- Coordinate with legal, HR, and leadership
-- Expect attacker behavior to change post-containment
-- Containment is temporary; eradication follows
+Expert containment is about **control, not panic**.
